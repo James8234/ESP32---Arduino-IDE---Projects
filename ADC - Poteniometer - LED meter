@@ -1,0 +1,68 @@
+//Makes it clear which ports are which variables
+const int potPin  = 34;
+const int potPinCheckAdc = 35;
+const int ledPin1 = 23;
+const int ledPin2 = 19;
+const int ledPin3 = 18;
+const int ledPin4 = 5;
+const int ledPin5 = 17;
+
+const int ledPins[5] = {ledPin1, ledPin2, ledPin3, ledPin4, ledPin5};
+int adcMax = 4096; //4096
+const int adcMin = 0;
+int ledTurnOnRange = 0; //calculated
+int ledOnCount = 0; //stores number of leds to turn on
+int potValue = 0; //stores our digital value from our analog input
+//int potValueAdcMax = 0;
+const int ledCount = 5;
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(potPin, INPUT);
+  //set output ledpins
+  for(int i = 0; i < ledCount; i++){
+    pinMode(ledPins[i], OUTPUT);
+  }
+
+  //Calculated ledTurnOnRange
+ // ledTurnOnRange = adcMax / ledCount;
+
+  //Initizes Serial port
+  Serial.begin(115200);
+  delay(1000);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  potValue = analogRead(potPin);
+  adcMax = analogRead(potPinCheckAdc);
+  adcMax = adcMax - 50; //gives some buffer
+  
+  //Calculated ledTurnOnRange
+  ledTurnOnRange = adcMax / ledCount; //Because adcMax can change from load we do it here
+
+  //Get the number of divisions
+  if(potValue <= adcMax) {
+    ledOnCount = potValue / ledTurnOnRange;
+  }
+  else {
+    ledOnCount = 5;
+  }
+
+  //turn on the correct leds
+ for(int i = 0; i < ledCount; i++){
+    if(ledOnCount > i){
+      digitalWrite(ledPins[i], HIGH);
+    }
+    else {
+      digitalWrite(ledPins[i], LOW);
+    }
+  }
+  //print data to serial port
+  Serial.print("Analog value: ");
+  Serial.print(potValue);
+  Serial.print("Analog value: ");
+  Serial.print(potValueAdcMax);
+  Serial.print("\n");
+  delay(500);
+}
